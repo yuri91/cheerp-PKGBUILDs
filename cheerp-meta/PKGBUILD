@@ -1,0 +1,13 @@
+# Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
+pkgname=cheerp-meta
+pkgver=1.2.1
+pkgrel=1
+epoch=
+pkgdesc="A C++ compiler for the Web, meta-package"
+arch=("x86_64")
+url="leaningtech.com/cheerp"
+license=('GPL2')
+groups=()
+depends=("cheerp-llvm-clang" "cheerp-utils" "cheerp-newlib" "cheerp-libcxx" 
+         "cheerp-libcxxabi" "cheerp-libs")
+

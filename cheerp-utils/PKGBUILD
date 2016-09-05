@@ -1,0 +1,31 @@
+# Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
+pkgname=cheerp-utils
+pkgver=1.2.1
+pkgrel=1
+epoch=
+pkgdesc="A C++ compiler for the Web, includes and tools"
+arch=("any")
+url="leaningtech.com/cheerp"
+license=('GPL2')
+groups=()
+depends=()
+makedepends=()
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("git+https://github.com/leaningtech/cheerp-utils.git#tag=cheerp-$pkgver")
+md5sums=('SKIP')
+
+
+package() {
+	cd $srcdir/cheerp-utils
+	make -C include install INSTALL_PREFIX=$pkgdir/opt/cheerp
+	make -C tools   install INSTALL_PREFIX=$pkgdir/opt/cheerp
+	make -C tests   install INSTALL_PREFIX=$pkgdir/opt/cheerp
+}
