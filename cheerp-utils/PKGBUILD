@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-utils
-pkgver=1.2.1
+pkgver=cheerp.1.3.r28.g4de32b0
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, includes and tools"
@@ -19,13 +19,18 @@ backup=()
 options=()
 install=
 changelog=
-source=("git+https://github.com/leaningtech/cheerp-utils.git#tag=cheerp-$pkgver")
+source=("git+https://github.com/leaningtech/cheerp-utils.git")
 md5sums=('SKIP')
+pkgver() {
+	cd $srcdir/cheerp-utils
+	git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 
 package() {
 	cd $srcdir/cheerp-utils
-	make -C include install INSTALL_PREFIX=$pkgdir/opt/cheerp
-	make -C tools   install INSTALL_PREFIX=$pkgdir/opt/cheerp
-	make -C tests   install INSTALL_PREFIX=$pkgdir/opt/cheerp
+	mkdir -p build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp ..
+	make DESTDIR=$pkgdir install
 }

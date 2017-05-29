@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-llvm-clang
-pkgver=1.2.1
+pkgver=cheerp.1.3.r212.g2d3995309d
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -19,16 +19,20 @@ backup=()
 options=()
 install=
 changelog=
-source=("cheerp-llvm::git+https://github.com/leaningtech/cheerp-llvm.git#tag=cheerp-$pkgver"
-"clang::git+https://github.com/leaningtech/cheerp-clang.git#tag=cheerp-$pkgver")
+source=("cheerp-llvm::git+https://github.com/leaningtech/cheerp-llvm.git"
+"clang::git+https://github.com/leaningtech/cheerp-clang.git")
 md5sums=('SKIP'
          'SKIP')
+pkgver() {
+  cd $srcdir/cheerp-llvm
+  git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 prepare() {
 	cd $srcdir
-	mv  clang cheerp-llvm/tools/
+	mv -n clang cheerp-llvm/tools/
 	cd $srcdir/cheerp-llvm
-	mkdir build
+	mkdir -p build
 	cd build
 	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD="ARM;CheerpBackend;X86" ..
 }
