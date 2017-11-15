@@ -25,6 +25,8 @@ md5sums=('SKIP')
 
 package() {
 	cd $srcdir/cheerp-libs
+	mkdir -p $pkgdir/opt/cheerp/lib/genericjs/
+	mkdir -p $pkgdir/opt/cheerp/lib/asmjs/
 	make -C webgles install INSTALL_PREFIX=$pkgdir/opt/cheerp CHEERP_PREFIX=/opt/cheerp
 	make -C stdlibs install_genericjs INSTALL_PREFIX=$pkgdir/opt/cheerp CHEERP_PREFIX=/opt/cheerp
 	make -C stdlibs install_asmjs INSTALL_PREFIX=$pkgdir/opt/cheerp CHEERP_PREFIX=/opt/cheerp
