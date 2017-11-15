@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-libcxxabi
-pkgver=2.0rc1
+pkgver=2.82a985f
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, C++ ABI implementation"
@@ -19,10 +19,15 @@ backup=()
 options=('!strip')
 install=
 changelog=
-source=("git+https://github.com/leaningtech/cheerp-libcxx.git#tag=cheerp-$pkgver"
-"git+https://github.com/leaningtech/cheerp-libcxxabi.git#tag=cheerp-$pkgver")
+source=("git+https://github.com/leaningtech/cheerp-libcxx.git"
+"git+https://github.com/leaningtech/cheerp-libcxxabi.git")
 md5sums=('SKIP'
          'SKIP')
+
+pkgver() {
+  cd "$_pkgname"
+  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
 
 prepare_mode() {
 	cd $srcdir/cheerp-libcxxabi
