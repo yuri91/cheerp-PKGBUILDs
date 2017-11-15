@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-utils
-pkgver=1.2.1
+pkgver=2.0rc1
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, includes and tools"
@@ -25,7 +25,8 @@ md5sums=('SKIP')
 
 package() {
 	cd $srcdir/cheerp-utils
-	make -C include install INSTALL_PREFIX=$pkgdir/opt/cheerp
-	make -C tools   install INSTALL_PREFIX=$pkgdir/opt/cheerp
-	make -C tests   install INSTALL_PREFIX=$pkgdir/opt/cheerp
+	mkdir -p build
+	cd build
+	cmake -DCHEERP_PREFIX=/opt/cheerp -DCMAKE_INSTALL_PREFIX=$pkgdir/opt/cheerp ..
+	make install
 }

@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-libcxx
-pkgver=1.2.1
+pkgver=2.0rc1
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, C++ library implementation"
@@ -24,10 +24,10 @@ source=("git+https://github.com/leaningtech/cheerp-libcxx.git#tag=cheerp-$pkgver
 md5sums=('SKIP'
          'SKIP')
 
-prepare() {
+prepare_mode() {
 	cd $srcdir/cheerp-libcxx
-	mkdir -p build
-	cd build
+	mkdir -p build_$1
+	cd build_$1
 	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp \
 	      -DCMAKE_BUILD_TYPE=Release \
 	      -DCMAKE_TOOLCHAIN_FILE=/opt/cheerp/share/cmake/Modules/CheerpToolchain.cmake \
@@ -35,16 +35,29 @@ prepare() {
 	      -DLIBCXX_ENABLE_ASSERTIONS=OFF \
 	      -DLIBCXX_CXX_ABI_INCLUDE_PATHS=$srcdir/cheerp-libcxxabi/include \
 	      -DLIBCXX_CXX_ABI=libcxxabi \
-	      -DCMAKE_CXX_FLAGS="-target cheerp -nostdlib -frtti" ..
+	      -DCMAKE_CXX_FLAGS="-target cheerp -nostdlib -frtti" \
+	      -DCHEERP_MODE=$1 ..
+}
+prepare() {
+	prepare_mode genericjs
+	prepare_mode asmjs
 }
 
 build() {
-	cd $srcdir/cheerp-libcxx/build
+	pushd $srcdir/cheerp-libcxx/build_genericjs
 	make
+	popd
+	pushd $srcdir/cheerp-libcxx/build_asmjs
+	make
+	popd
 }
 
 package() {
-	cd $srcdir/cheerp-libcxx/build
+	pushd $srcdir/cheerp-libcxx/build_genericjs
 	make DESTDIR=$pkgdir install
+	popd
+	pushd $srcdir/cheerp-libcxx/build_asmjs
+	make DESTDIR=$pkgdir install
+	popd
 
 }

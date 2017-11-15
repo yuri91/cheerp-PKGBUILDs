@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-llvm-clang
-pkgver=1.2.1
+pkgver=2.0rc1
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -30,7 +30,7 @@ prepare() {
 	cd $srcdir/cheerp-llvm
 	mkdir build
 	cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD="ARM;CheerpBackend;X86" ..
+	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD="CheerpBackend;CheerpWasmBackend;" ..
 }
 
 build() {
@@ -41,6 +41,9 @@ build() {
 package() {
 	cd $srcdir/cheerp-llvm/build
 	make DESTDIR=$pkgdir install
+	mkdir -p $pkgdir/usr/bin
+	ln -s /opt/cheerp/bin/clang $pkgdir/usr/bin/cheerp-clang
+	ln -s /opt/cheerp/bin/clang++ $pkgdir/usr/bin/cheerp-clang++
 	mkdir -p $pkgdir/usr/share/licenses/cheerp-llvm-clang
 	cp $srcdir/cheerp-llvm/LICENSE.TXT $pkgdir/usr/share/licenses/cheerp-llvm-clang
 }
