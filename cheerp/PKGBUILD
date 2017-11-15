@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
-pkgname=cheerp-meta
-pkgver=1.2.1
+pkgname=cheerp
+pkgver=2.0rc1
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, meta-package"
