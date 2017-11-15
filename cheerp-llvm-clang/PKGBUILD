@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-llvm-clang
-pkgver=2.0rc1
+pkgver=2.82a985f
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -19,10 +19,15 @@ backup=()
 options=()
 install=
 changelog=
-source=("cheerp-llvm::git+https://github.com/leaningtech/cheerp-llvm.git#tag=cheerp-$pkgver"
-"clang::git+https://github.com/leaningtech/cheerp-clang.git#tag=cheerp-$pkgver")
+source=("cheerp-llvm::git+https://github.com/leaningtech/cheerp-llvm.git"
+"clang::git+https://github.com/leaningtech/cheerp-clang.git")
 md5sums=('SKIP'
          'SKIP')
+
+pkgver() {
+  cd "$_pkgname"
+  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
 
 prepare() {
 	cd $srcdir
