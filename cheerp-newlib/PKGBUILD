@@ -34,12 +34,22 @@ prepare_mode() {
 	popd
 }
 prepare() {
+	export CPPFLAGS=""
+	export CFLAGS=""
+	export CXXFLAGS=""
+	export LDFLAGS=""
+	export MAKEFLAGS=""
 	cd $srcdir/cheerp-newlib/newlib
 	prepare_mode genericjs
 	prepare_mode asmjs
 }
 
 build() {
+	export CPPFLAGS=""
+	export CFLAGS=""
+	export CXXFLAGS=""
+	export LDFLAGS=""
+	export MAKEFLAGS=""
 	pushd $srcdir/cheerp-newlib/newlib/build_genericjs
 	make
 	popd
