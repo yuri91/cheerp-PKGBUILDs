@@ -19,8 +19,8 @@ backup=()
 options=()
 install=
 changelog=
-source=("cheerp-llvm::git+https://github.com/leaningtech/cheerp-llvm.git"
-"clang::git+https://github.com/leaningtech/cheerp-clang.git")
+source=("cheerp-llvm::git+ssh://git@bitbucket.org/apignotti/cheerp-llvm.git"
+"clang::git+ssh://git@bitbucket.org/apignotti/cheerp-clang.git")
 md5sums=('SKIP'
          'SKIP')
 

@@ -19,7 +19,7 @@ backup=()
 options=('!strip')
 install=
 changelog=
-source=("git+https://github.com/leaningtech/cheerp-libs.git")
+source=("git+ssh://git@bitbucket.org/apignotti/cheerp-libs.git")
 md5sums=('SKIP')
 
 pkgver() {

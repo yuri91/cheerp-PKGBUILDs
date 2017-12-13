@@ -19,8 +19,8 @@ backup=()
 options=('!strip')
 install=
 changelog=
-source=("git+https://github.com/leaningtech/cheerp-libcxx.git"
-"git+https://github.com/leaningtech/cheerp-libcxxabi.git")
+source=("git+ssh://git@bitbucket.org/apignotti/cheerp-libcxx.git"
+"git+ssh://git@bitbucket.org/apignotti/cheerp-libcxxabi.git")
 md5sums=('SKIP'
          'SKIP')
 
