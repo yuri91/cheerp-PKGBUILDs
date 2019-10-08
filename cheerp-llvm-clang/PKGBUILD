@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-llvm-clang
-pkgver=2.82a985f
+pkgver=8.e3ee10c
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -31,24 +31,46 @@ pkgver() {
 
 prepare() {
 	cd $srcdir
-	mv  clang cheerp-llvm/tools/
+	mv  -n clang cheerp-llvm/tools/
 	cd $srcdir/cheerp-llvm
+	rm -rf build
 	mkdir build
 	cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD="CheerpBackend;CheerpWasmBackend;X86" ..
+	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_C_FLAGS_RELWITHDEBINFO="-O2 -g" \
+		-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O2 -g" \
+		-GNinja \
+		-DCMAKE_C_COMPILER=/opt/cheerp/bin/clang \
+		-DCMAKE_CXX_COMPILER=/opt/cheerp/bin/clang++ \
+		-DLLVM_TARGETS_TO_BUILD="CheerpBackend;CheerpWasmBackend;X86" ..
+		#-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld \
+		#-DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld \
+		#-DCMAKE_C_COMPILER=/opt/cheerp/bin/clang \
+		#-DCMAKE_CXX_COMPILER=/opt/cheerp/bin/clang++ \
 }
 
 build() {
 	cd $srcdir/cheerp-llvm/build
-	make
+	ninja
 }
 
 package() {
 	cd $srcdir/cheerp-llvm/build
-	make DESTDIR=$pkgdir install
+	DESTDIR=$pkgdir ninja install
 	mkdir -p $pkgdir/usr/bin
-	ln -s /opt/cheerp/bin/clang $pkgdir/usr/bin/cheerp-clang
-	ln -s /opt/cheerp/bin/clang++ $pkgdir/usr/bin/cheerp-clang++
+
+	cat <<EOF > $pkgdir/usr/bin/cheerp-clang
+#!/bin/bash
+/opt/cheerp/bin/clang \$@
+EOF
+	chmod a+x $pkgdir/usr/bin/cheerp-clang
+	cat <<EOF > $pkgdir/usr/bin/cheerp-clang++
+#!/bin/bash
+/opt/cheerp/bin/clang++ \$@
+EOF
+	chmod a+x $pkgdir/usr/bin/cheerp-clang++
+
 	mkdir -p $pkgdir/usr/share/licenses/cheerp-llvm-clang
 	cp $srcdir/cheerp-llvm/LICENSE.TXT $pkgdir/usr/share/licenses/cheerp-llvm-clang
 }

@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-newlib
-pkgver=2.82a985f
+pkgver=8.e3ee10c
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, C library implementation"
@@ -35,7 +35,7 @@ prepare_mode() {
 	../configure --host=cheerp-$1 --with-cxx-headers=$srcdir/cheerp-libcxx/include \
 		--prefix=/opt/cheerp --enable-newlib-io-long-long \
 		--enable-newlib-iconv --enable-newlib-iconv-encodings=utf-16,utf-8,ucs_2 \
-		--enable-newlib-mb \
+		--enable-newlib-mb --enable-newlib-nano-formatted-io \
 		'AR=gcc-ar' 'RANLIB=gcc-ranlib'
 	popd
 }

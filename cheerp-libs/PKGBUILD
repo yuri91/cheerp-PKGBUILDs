@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-libs
-pkgver=2.82a985f
+pkgver=8.e3ee10c
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, libraries"
@@ -32,6 +32,7 @@ package() {
 	cd $srcdir/cheerp-libs
 	mkdir -p $pkgdir/opt/cheerp/lib/genericjs/
 	mkdir -p $pkgdir/opt/cheerp/lib/asmjs/
+	make -C wasm install INSTALL_PREFIX=$pkgdir/opt/cheerp CHEERP_PREFIX=/opt/cheerp
 	make -C webgles install INSTALL_PREFIX=$pkgdir/opt/cheerp CHEERP_PREFIX=/opt/cheerp
 	make -C stdlibs install_genericjs INSTALL_PREFIX=$pkgdir/opt/cheerp CHEERP_PREFIX=/opt/cheerp
 	make -C stdlibs install_asmjs INSTALL_PREFIX=$pkgdir/opt/cheerp CHEERP_PREFIX=/opt/cheerp

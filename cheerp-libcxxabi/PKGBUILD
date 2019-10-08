@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-libcxxabi
-pkgver=2.82a985f
+pkgver=8.e3ee10c
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, C++ ABI implementation"
@@ -31,7 +31,7 @@ pkgver() {
 
 prepare_mode() {
 	cd $srcdir/cheerp-libcxxabi
-	mkdir build_$1
+	mkdir -p build_$1
 	cd build_$1
 	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp \
 	      -DCMAKE_BUILD_TYPE=Release \

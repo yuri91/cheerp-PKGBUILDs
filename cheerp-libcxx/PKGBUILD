@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-libcxx
-pkgver=2.82a985f
+pkgver=8.e3ee10c
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, C++ library implementation"
