@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-llvm-clang
-pkgver=8.e3ee10c
+pkgver=9.b1905a1
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -43,7 +43,7 @@ prepare() {
 		-GNinja \
 		-DCMAKE_C_COMPILER=/opt/cheerp/bin/clang \
 		-DCMAKE_CXX_COMPILER=/opt/cheerp/bin/clang++ \
-		-DLLVM_TARGETS_TO_BUILD="CheerpBackend;CheerpWasmBackend;X86" ..
+		-DLLVM_TARGETS_TO_BUILD="CheerpBackend;X86" ..
 		#-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld \
 		#-DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld \
 		#-DCMAKE_C_COMPILER=/opt/cheerp/bin/clang \
