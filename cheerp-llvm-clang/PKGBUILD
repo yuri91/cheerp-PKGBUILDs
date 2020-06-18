@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-llvm-clang
-pkgver=9.b1905a1
+pkgver=10.0ece355
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -36,18 +36,16 @@ prepare() {
 	rm -rf build
 	mkdir build
 	cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp \
-		-DCMAKE_BUILD_TYPE=Release \
+	cmake .. -C ../CheerpCmakeConf.cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 		-DCMAKE_C_FLAGS_RELWITHDEBINFO="-O2 -g" \
 		-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O2 -g" \
 		-GNinja \
-		-DCMAKE_C_COMPILER=/opt/cheerp/bin/clang \
-		-DCMAKE_CXX_COMPILER=/opt/cheerp/bin/clang++ \
-		-DLLVM_TARGETS_TO_BUILD="CheerpBackend;X86" ..
-		#-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld \
-		#-DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld \
-		#-DCMAKE_C_COMPILER=/opt/cheerp/bin/clang \
-		#-DCMAKE_CXX_COMPILER=/opt/cheerp/bin/clang++ \
+		-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld \
+		-DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld \
+		-DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=lld \
+		-DCMAKE_C_COMPILER=clang \
+		-DCMAKE_CXX_COMPILER=clang++
 }
 
 build() {

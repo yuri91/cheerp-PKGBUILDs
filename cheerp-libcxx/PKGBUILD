@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-libcxx
-pkgver=9.b1905a1
+pkgver=10.0ece355
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, C++ library implementation"
@@ -36,6 +36,7 @@ prepare_mode() {
 	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp \
 	      -DCMAKE_BUILD_TYPE=Release \
 	      -DCMAKE_TOOLCHAIN_FILE=/opt/cheerp/share/cmake/Modules/$1Toolchain.cmake \
+	      -DCHEERP_LINEAR_OUTPUT=asmjs \
 	      -DLIBCXX_ENABLE_SHARED=OFF \
 	      -DLIBCXX_ENABLE_ASSERTIONS=OFF \
 	      -DLIBCXX_CXX_ABI_INCLUDE_PATHS=$srcdir/cheerp-libcxxabi/include \
