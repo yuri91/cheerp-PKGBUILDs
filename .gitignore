@@ -1,1 +1,6 @@
 *.pkg.tar.xz
+*.pkg.tar.*
+cheerp-*/src
+cheerp-*/pkg
+cheerp-*/cheerp-*
+.ccls-cache

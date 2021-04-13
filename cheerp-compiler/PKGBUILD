@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-llvm-clang
-pkgver=10.0ece355
+pkgver=11.a4dbe10
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -19,10 +19,8 @@ backup=()
 options=()
 install=
 changelog=
-source=("cheerp-llvm::git+ssh://git@bitbucket.org/apignotti/cheerp-llvm.git"
-"clang::git+ssh://git@bitbucket.org/apignotti/cheerp-clang.git")
-md5sums=('SKIP'
-         'SKIP')
+source=("git+ssh://git@bitbucket.org/apignotti/cheerp-compiler.git")
+md5sums=('SKIP')
 
 pkgver() {
   cd "$_pkgname"
@@ -30,13 +28,12 @@ pkgver() {
 }
 
 prepare() {
-	cd $srcdir
-	mv  -n clang cheerp-llvm/tools/
-	cd $srcdir/cheerp-llvm
+	cd $srcdir/cheerp-compiler
 	rm -rf build
 	mkdir build
 	cd build
-	cmake .. -C ../CheerpCmakeConf.cmake \
+	cmake ../llvm -C ../llvm/CheerpCmakeConf.cmake \
+		-DLLVM_ENABLE_PROJECTS=clang \
 		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 		-DCMAKE_C_FLAGS_RELWITHDEBINFO="-O2 -g" \
 		-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O2 -g" \
@@ -49,26 +46,26 @@ prepare() {
 }
 
 build() {
-	cd $srcdir/cheerp-llvm/build
+	cd $srcdir/cheerp-compiler/build
 	ninja
 }
 
 package() {
-	cd $srcdir/cheerp-llvm/build
-	DESTDIR=$pkgdir ninja install
+	cd $srcdir/cheerp-compiler/build
+	DESTDIR=$pkgdir ninja install-distribution
 	mkdir -p $pkgdir/usr/bin
 
-	cat <<EOF > $pkgdir/usr/bin/cheerp-clang
+	cat <<EOF > $pkgdir/usr/bin/cheerp
 #!/bin/bash
 /opt/cheerp/bin/clang \$@
 EOF
-	chmod a+x $pkgdir/usr/bin/cheerp-clang
-	cat <<EOF > $pkgdir/usr/bin/cheerp-clang++
+	chmod a+x $pkgdir/usr/bin/cheerp
+	cat <<EOF > $pkgdir/usr/bin/cheerp++
 #!/bin/bash
 /opt/cheerp/bin/clang++ \$@
 EOF
-	chmod a+x $pkgdir/usr/bin/cheerp-clang++
+	chmod a+x $pkgdir/usr/bin/cheerp++
 
-	mkdir -p $pkgdir/usr/share/licenses/cheerp-llvm-clang
-	cp $srcdir/cheerp-llvm/LICENSE.TXT $pkgdir/usr/share/licenses/cheerp-llvm-clang
+	mkdir -p $pkgdir/usr/share/licenses/cheerp-compiler
+	cp $srcdir/cheerp-compiler/llvm/LICENSE.TXT $pkgdir/usr/share/licenses/cheerp-compiler
 }

@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-libcxx
-pkgver=10.0ece355
+pkgver=11.a4dbe10
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, C++ library implementation"
@@ -19,18 +19,16 @@ backup=()
 options=('!strip')
 install=
 changelog=
-source=("git+ssh://git@bitbucket.org/apignotti/cheerp-libcxx.git"
-"git+ssh://git@bitbucket.org/apignotti/cheerp-libcxxabi.git")
-md5sums=('SKIP'
-         'SKIP')
+source=("git+ssh://git@bitbucket.org/apignotti/cheerp-compiler.git")
+md5sums=('SKIP')
 
 pkgver() {
   cd "$_pkgname"
   echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
 }
 
-prepare_mode() {
-	cd $srcdir/cheerp-libcxx
+prepare_libcxx_mode() {
+	cd $srcdir/cheerp-compiler/libcxx
 	mkdir -p build_$1
 	cd build_$1
 	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp \
@@ -39,30 +37,60 @@ prepare_mode() {
 	      -DCHEERP_LINEAR_OUTPUT=asmjs \
 	      -DLIBCXX_ENABLE_SHARED=OFF \
 	      -DLIBCXX_ENABLE_ASSERTIONS=OFF \
-	      -DLIBCXX_CXX_ABI_INCLUDE_PATHS=$srcdir/cheerp-libcxxabi/include \
+	      -DLIBCXX_CXX_ABI_INCLUDE_PATHS=$srcdir/cheerp-compiler/libcxxabi/include \
 	      -DLIBCXX_CXX_ABI=libcxxabi \
 	      -DCMAKE_CXX_FLAGS="-nostdlib -frtti" ..
 }
+
+prepare_libcxxabi_mode() {
+	cd $srcdir/cheerp-compiler/libcxxabi
+	mkdir -p build_$1
+	cd build_$1
+	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp \
+	      -DCMAKE_BUILD_TYPE=Release \
+	      -DCMAKE_TOOLCHAIN_FILE=/opt/cheerp/share/cmake/Modules/$1Toolchain.cmake \
+	      -DCHEERP_LINEAR_OUTPUT=asmjs \
+	      -DLIBCXXABI_ENABLE_SHARED=OFF \
+	      -DLIBCXXABI_ENABLE_ASSERTIONS=OFF \
+	      -DLIBCXXABI_LIBCXX_PATH="$srcdir/cheerp-compiler/libcxx/" \
+	      -DLIBCXXABI_LIBCXX_INCLUDES="$srcdir/cheerp-compiler/libcxx/include" \
+	      -DLIBCXXABI_ENABLE_THREADS=0 \
+	      -DUNIX=YES \
+	      -DCMAKE_CXX_FLAGS="-nostdlib -frtti" ..
+}
 prepare() {
-	prepare_mode Cheerp
-	prepare_mode CheerpWasm
+	prepare_libcxx_mode Cheerp
+	prepare_libcxx_mode CheerpWasm
+	prepare_libcxxabi_mode Cheerp
+	prepare_libcxxabi_mode CheerpWasm
 }
 
 build() {
-	pushd $srcdir/cheerp-libcxx/build_Cheerp
+	pushd $srcdir/cheerp-compiler/libcxx/build_Cheerp
 	make
 	popd
-	pushd $srcdir/cheerp-libcxx/build_CheerpWasm
+	pushd $srcdir/cheerp-compiler/libcxx/build_CheerpWasm
+	make
+	popd
+	pushd $srcdir/cheerp-compiler/libcxxabi/build_Cheerp
+	make
+	popd
+	pushd $srcdir/cheerp-compiler/libcxxabi/build_CheerpWasm
 	make
 	popd
 }
 
 package() {
-	pushd $srcdir/cheerp-libcxx/build_Cheerp
+	pushd $srcdir/cheerp-compiler/libcxx/build_Cheerp
 	make DESTDIR=$pkgdir install
 	popd
-	pushd $srcdir/cheerp-libcxx/build_CheerpWasm
+	pushd $srcdir/cheerp-compiler/libcxx/build_CheerpWasm
 	make DESTDIR=$pkgdir install
 	popd
-
+	pushd $srcdir/cheerp-compiler/libcxxabi/build_Cheerp
+	make DESTDIR=$pkgdir install
+	popd
+	pushd $srcdir/cheerp-compiler/libcxxabi/build_CheerpWasm
+	make DESTDIR=$pkgdir install
+	popd
 }
