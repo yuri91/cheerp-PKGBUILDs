@@ -1,9 +1,9 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
-pkgname=cheerp-libcxx
 pkgver=11.a4dbe10
+pkgname=("cheerp-libcxxabi" "cheerp-libcxx")
 pkgrel=1
 epoch=
-pkgdesc="A C++ compiler for the Web, C++ library implementation"
+pkgdesc="A C++ compiler for the Web, C++ library and abi implementation"
 arch=("x86_64")
 url="leaningtech.com/cheerp"
 license=('GPL2')
@@ -28,7 +28,7 @@ pkgver() {
 }
 
 prepare_libcxx_mode() {
-	cd $srcdir/cheerp-compiler/libcxx
+	cd ${srcdir}/cheerp-compiler/libcxx
 	mkdir -p build_$1
 	cd build_$1
 	cmake -DCMAKE_INSTALL_PREFIX=/opt/cheerp \
@@ -80,13 +80,16 @@ build() {
 	popd
 }
 
-package() {
+package_cheerp-libcxx() {
 	pushd $srcdir/cheerp-compiler/libcxx/build_Cheerp
 	make DESTDIR=$pkgdir install
 	popd
 	pushd $srcdir/cheerp-compiler/libcxx/build_CheerpWasm
 	make DESTDIR=$pkgdir install
 	popd
+}
+
+package_cheerp-libcxxabi() {
 	pushd $srcdir/cheerp-compiler/libcxxabi/build_Cheerp
 	make DESTDIR=$pkgdir install
 	popd

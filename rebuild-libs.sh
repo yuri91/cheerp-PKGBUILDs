@@ -15,5 +15,4 @@ function build_from_scratch {
 
 build_from_scratch cheerp-newlib
 build_from_scratch cheerp-libcxx
-build_from_scratch cheerp-libcxxabi
 build_from_scratch cheerp-libs
