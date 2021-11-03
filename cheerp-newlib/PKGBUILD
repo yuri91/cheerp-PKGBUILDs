@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-newlib
-pkgver=11.a4dbe10
+pkgver=14.8be0a77
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, C library implementation"
@@ -20,7 +20,7 @@ options=('!strip')
 install=
 changelog=
 source=("git+https://github.com/leaningtech/cheerp-newlib.git"
-        "git+https://github.com/leaningtech/cheerp-libcxx.git")
+        "git+https://github.com/leaningtech/cheerp-compiler.git")
 md5sums=('SKIP'
          'SKIP')
 
@@ -32,7 +32,7 @@ pkgver() {
 prepare_mode() {
 	mkdir -p build_$1
 	pushd build_$1
-	../configure --host=cheerp-$1 --with-cxx-headers=$srcdir/cheerp-libcxx/include \
+	../configure --host=cheerp-$1 --with-cxx-headers=$srcdir/cheerp-compiler/libcxx/include \
 		--prefix=/opt/cheerp --enable-newlib-io-long-long \
 		--enable-newlib-iconv --enable-newlib-iconv-encodings=utf-16,utf-8,ucs_2 \
 		--enable-newlib-mb --enable-newlib-nano-formatted-io \

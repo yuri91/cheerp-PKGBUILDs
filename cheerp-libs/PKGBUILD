@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp-libs
-pkgver=11.a4dbe10
+pkgver=14.8be0a77
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web, libraries"
