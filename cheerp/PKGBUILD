@@ -1,13 +1,156 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp
-pkgver=2.0rc1
+pkgver=14.8be0a77
 pkgrel=1
 epoch=
-pkgdesc="A C++ compiler for the Web, meta-package"
+pkgdesc="A C++ compiler for the Web"
 arch=("x86_64")
 url="leaningtech.com/cheerp"
-license=('GPL2')
+license=('custom')
 groups=()
-depends=("cheerp-llvm-clang" "cheerp-utils" "cheerp-newlib" "cheerp-libcxx" 
-         "cheerp-libcxxabi" "cheerp-libs")
+depends=("python" "gcc-libs")
+makedepends=("cmake" "ninja")
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("git+https://github.com/leaningtech/cheerp-compiler.git"
+	"git+https://github.com/leaningtech/cheerp-utils.git"
+	"git+https://github.com/leaningtech/cheerp-newlib.git"
+	"git+https://github.com/leaningtech/cheerp-libs.git"
+)
+md5sums=('SKIP'
+	 'SKIP'
+	 'SKIP'
+	 'SKIP'
+	)
 
+pkgver() {
+  cd "$_pkgname"
+  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
+
+build() {
+	pushd $srcdir/cheerp-compiler
+	cmake -S llvm -B build -C llvm/CheerpCmakeConf.cmake \
+		-DLLVM_ENABLE_PROJECTS=clang \
+		-GNinja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_C_FLAGS_RELEASE="-O2" \
+		-DCMAKE_CXX_FLAGS_RELEASE="-O2" \
+		-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld \
+		-DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld \
+		-DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=lld \
+		-DCMAKE_C_COMPILER=clang \
+		-DCMAKE_CXX_COMPILER=clang++
+	ninja -C build
+	popd
+
+	export CPPFLAGS=""
+	export CFLAGS=""
+	export CXXFLAGS=""
+	export LDFLAGS=""
+	export MAKEFLAGS=""
+	pushd $srcdir/cheerp-newlib/newlib
+	build_mode()
+	{
+		mkdir -p build_$1
+		pushd build_$1
+		../configure --host=cheerp-$1 --with-cxx-headers="$srcdir/cheerp-compiler/libcxx/include" \
+			--prefix=/opt/cheerp --enable-newlib-io-long-long \
+			--enable-newlib-iconv --enable-newlib-iconv-encodings=utf-16,utf-8,ucs_2 \
+			--enable-newlib-mb --enable-newlib-nano-formatted-io \
+			"CC=$srcdir/cheerp-compiler/build/bin/clang" \
+			"CXX=$srcdir/cheerp-compiler/build/bin/clang++" \
+			"CXX_FLAGS=-I$srcdir/cheerp-utils/include" \
+			'AR=gcc-ar' 'RANLIB=gcc-ranlib'
+		make
+		popd
+	}
+	build_mode genericjs
+	build_mode asmjs
+	popd
+
+	pushd $srcdir/cheerp-compiler
+	cmake -S runtimes -B build_runtimes_js -C runtimes/CheerpCmakeConf.cmake \
+		-GNinja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_COMPILER_TARGET="cheerp" \
+		-DCHEERP_PREFIX="$srcdir/cheerp-compiler/build/"
+	ninja -C build_runtimes_js
+
+	cmake -S runtimes -B build_runtimes_wasm -C runtimes/CheerpCmakeConf.cmake \
+		-GNinja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_COMPILER_TARGET="cheerp-wasm" \
+		-DCHEERP_PREFIX="$srcdir/cheerp-compiler/build/"
+	ninja -C build_runtimes_wasm
+	popd
+
+}
+
+package() {
+	cd $srcdir/cheerp-compiler/
+
+	DESTDIR="$pkgdir" ninja -C build install-distribution
+	DESTDIR="$pkgdir" ninja -C build_runtimes_js install
+	DESTDIR="$pkgdir" ninja -C build_runtimes_wasm install
+
+	pushd $srcdir/cheerp-utils
+	cmake -GNinja -B build -DCHEERP_PREFIX=/opt/cheerp -DCMAKE_INSTALL_PREFIX=$pkgdir/opt/cheerp
+	ninja -C build install
+	popd
+
+
+	pushd $srcdir/cheerp-newlib/newlib
+	build_lib()
+	{
+		pushd build_$2
+		mkdir -p build-bc-$1
+		cd build-bc-$1
+		ar x ../$1/$1.a
+		$pkgdir/opt/cheerp/bin/llvm-link *.o -o $1.bc
+		mkdir -p $pkgdir/opt/cheerp/lib/$2
+		cp -v $1.bc "$pkgdir/opt/cheerp/lib/$2/$1.bc"
+		cd ..
+		rm -rf build-bc-$1
+		popd
+	}
+	make DESTDIR=$pkgdir -C build_genericjs install
+	build_lib libc genericjs
+	build_lib libm genericjs
+	make DESTDIR=$pkgdir -C build_asmjs install
+	build_lib libc asmjs
+	build_lib libm asmjs
+	popd
+
+	pushd $srcdir/cheerp-libs
+	mkdir -p $pkgdir/opt/cheerp/lib/genericjs/
+	mkdir -p $pkgdir/opt/cheerp/lib/asmjs/
+	make -C wasm install INSTALL_PREFIX="$pkgdir/opt/cheerp" CHEERP_PREFIX="$pkgdir/opt/cheerp"
+	make -C webgles install INSTALL_PREFIX="$pkgdir/opt/cheerp" CHEERP_PREFIX="$pkgdir/opt/cheerp"
+	make -C stdlibs install_genericjs INSTALL_PREFIX="$pkgdir/opt/cheerp" CHEERP_PREFIX="$pkgdir/opt/cheerp"
+	make -C stdlibs install_asmjs INSTALL_PREFIX="$pkgdir/opt/cheerp" CHEERP_PREFIX="$pkgdir/opt/cheerp"
+	popd
+
+	mkdir -p $pkgdir/usr/bin
+
+	cat <<EOF > $pkgdir/usr/bin/cheerp
+#!/bin/bash
+/opt/cheerp/bin/clang \$@
+EOF
+	chmod a+x $pkgdir/usr/bin/cheerp
+	cat <<EOF > $pkgdir/usr/bin/cheerp++
+#!/bin/bash
+/opt/cheerp/bin/clang++ \$@
+EOF
+	chmod a+x $pkgdir/usr/bin/cheerp++
+
+	mkdir -p $pkgdir/usr/share/licenses/cheerp-compiler
+	cp $srcdir/cheerp-compiler/llvm/LICENSE.TXT $pkgdir/usr/share/licenses/cheerp-compiler
+}
