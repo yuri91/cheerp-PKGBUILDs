@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp
-pkgver=18.96d2800
+pkgver=19.b461065
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -128,6 +128,7 @@ build() {
 		cmake -S runtimes -B build_runtimes_js \
 			-GNinja \
 			-DCMAKE_BUILD_TYPE=Release \
+			-DLLVM_DEFAULT_TARGET_TRIPLE="cheerp" \
 			-DCMAKE_CXX_COMPILER_TARGET="cheerp" \
 			-DCHEERP_PREFIX="$srcdir/cheerp-compiler/build/" \
 			-DCMAKE_MODULE_PATH="$srcdir/cheerp-compiler/build_cmake" \
@@ -147,6 +148,7 @@ build() {
 		cmake -S runtimes -B build_runtimes_wasm \
 			-GNinja \
 			-DCMAKE_BUILD_TYPE=Release \
+			-DLLVM_DEFAULT_TARGET_TRIPLE="cheerp-wasm" \
 			-DCMAKE_CXX_COMPILER_TARGET="cheerp-wasm" \
 			-DCHEERP_PREFIX="$srcdir/cheerp-compiler/build/" \
 			-DCMAKE_MODULE_PATH="$srcdir/cheerp-compiler/build_cmake" \
