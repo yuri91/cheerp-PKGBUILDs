@@ -202,6 +202,8 @@ EOF
 	pushd $srcdir/cheerp-newlib/newlib
 	make DESTDIR=$pkgdir -C build_genericjs install
 	make DESTDIR=$pkgdir -C build_asmjs install
+	cp $srcdir/cheerp-compiler/build/lib/genericjs/lib{c,m}.bc $pkgdir/opt/cheerp/lib/genericjs/
+	cp $srcdir/cheerp-compiler/build/lib/asmjs/lib{c,m}.bc $pkgdir/opt/cheerp/lib/asmjs/
 	popd
 
 	pushd $srcdir/cheerp-libs
