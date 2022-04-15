@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp
-pkgver=21.774020c
+pkgver=22.535c1a8
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -76,7 +76,7 @@ build() {
 	mkdir -p dist
 	if [ $NO_CONFIGURE == "0" ]
 	then
-		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS=-"isystem $PWD/../../cheerp-compiler/clang/lib/Headers" ../configure --target=cheerp --disable-shared --prefix=/ --with-malloc=oldmalloc
+		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS="-fno-builtin -isystem $PWD/../../cheerp-compiler/clang/lib/Headers" ../configure --target=cheerp --disable-shared --prefix=/ --with-malloc=oldmalloc
 	fi
 	if [ $CLEAN_LIBS == "1" ]
 	then
@@ -91,7 +91,7 @@ build() {
 	mkdir -p dist
 	if [ $NO_CONFIGURE == "0" ]
 	then
-		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp-wasm" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS=-"isystem $PWD/../../cheerp-compiler/clang/lib/Headers" ../configure --target=cheerp-wasm --disable-shared --prefix=/ --with-malloc=oldmalloc
+		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp-wasm" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS="-fno-builtin -isystem $PWD/../../cheerp-compiler/clang/lib/Headers" ../configure --target=cheerp-wasm --disable-shared --prefix=/ --with-malloc=oldmalloc
 	fi
 	if [ $CLEAN_LIBS == "1" ]
 	then
