@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp
-pkgver=23.eedc806
+pkgver=24.30d9ce0
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -89,6 +89,9 @@ build() {
 	fi
 	make
 	make DESTDIR="$PWD/dist" install-headers
+	mkdir -p $srcdir/cheerp-compiler/build/lib/genericjs
+	cp -v lib/libc.bc "$srcdir/cheerp-compiler/build/lib/genericjs/libc.bc"
+	cp -v lib/crt1.bc $srcdir/cheerp-compiler/build/lib/genericjs/crt1.bc
 	popd
 
 	mkdir -p build_asmjs
@@ -104,28 +107,10 @@ build() {
 	fi
 	make
 	make DESTDIR="$PWD/dist" install-headers
+	mkdir -p $srcdir/cheerp-compiler/build/lib/asmjs
+	cp -v lib/libc.bc "$srcdir/cheerp-compiler/build/lib/asmjs/libc.bc"
+	cp -v lib/crt1.bc $srcdir/cheerp-compiler/build/lib/asmjs/crt1.bc
 	popd
-
-	build_lib()
-	{
-		pushd build_$2
-		mkdir -p build-bc-$1
-		cd build-bc-$1
-		ar x ../lib/$1.a
-		$srcdir/cheerp-compiler/build/bin/llvm-link *.o -o $1.bc
-		mkdir -p $srcdir/cheerp-compiler/build/lib/$2
-		cp -v $1.bc "$srcdir/cheerp-compiler/build/lib/$2/$1.bc"
-		cd ..
-		rm -rf build-bc-$1
-		popd
-	}
-	build_lib libc genericjs
-	#build_lib libm genericjs
-	build_lib libc asmjs
-	#build_lib libm asmjs
-
-	cp $srcdir/cheerp-musl/build_genericjs/lib/crt1.o $srcdir/cheerp-compiler/build/lib/genericjs/crt1.bc
-	cp $srcdir/cheerp-musl/build_asmjs/lib/crt1.o $srcdir/cheerp-compiler/build/lib/asmjs/crt1.bc
 
 	popd
 
@@ -246,11 +231,8 @@ EOF
 	cp $srcdir/cheerp-compiler/llvm/LICENSE.TXT $pkgdir/usr/share/licenses/cheerp-compiler
 
 	pushd $srcdir/cheerp-musl
-	make DESTDIR="$pkgdir/opt/cheerp" -C build_genericjs install-headers
-	cp $srcdir/cheerp-compiler/build/lib/genericjs/libc.bc $pkgdir/opt/cheerp/lib/genericjs/
-	cp $srcdir/cheerp-compiler/build/lib/asmjs/libc.bc $pkgdir/opt/cheerp/lib/asmjs/
-	cp $srcdir/cheerp-compiler/build/lib/genericjs/crt1.bc $pkgdir/opt/cheerp/lib/genericjs/
-	cp $srcdir/cheerp-compiler/build/lib/asmjs/crt1.bc $pkgdir/opt/cheerp/lib/asmjs/
+	make DESTDIR="$pkgdir/opt/cheerp" -C build_genericjs install-cheerp
+	make DESTDIR="$pkgdir/opt/cheerp" -C build_asmjs install-bc
 	popd
 
 	pushd $srcdir/cheerp-libs
