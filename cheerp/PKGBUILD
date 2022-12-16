@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp
-pkgver=24.30d9ce0
+pkgver=25.e3595f2
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -81,7 +81,7 @@ build() {
 	mkdir -p dist
 	if [ $NO_CONFIGURE == "0" ]
 	then
-		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS="-isystem $PWD/../../cheerp-compiler/clang/lib/Headers" ../configure --target=cheerp --disable-shared --prefix=/ --with-malloc=oldmalloc
+		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS="-isystem $PWD/../../cheerp-compiler/clang/lib/Headers" CFLAGS="-Wno-int-conversion" ../configure --target=cheerp --disable-shared --prefix=/
 	fi
 	if [ $CLEAN_LIBS == "1" ]
 	then
@@ -99,7 +99,7 @@ build() {
 	mkdir -p dist
 	if [ $NO_CONFIGURE == "0" ]
 	then
-		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp-wasm" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS="-isystem $PWD/../../cheerp-compiler/clang/lib/Headers" ../configure --target=cheerp-wasm --disable-shared --prefix=/ --with-malloc=oldmalloc
+		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp-wasm" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS="-isystem $PWD/../../cheerp-compiler/clang/lib/Headers" CFLAGS="-Wno-int-conversion" ../configure --target=cheerp-wasm --disable-shared --prefix=/
 	fi
 	if [ $CLEAN_LIBS == "1" ]
 	then
@@ -167,7 +167,7 @@ build() {
 
 	pushd $srcdir/cheerp-libs
 	make -C wasm CHEERP_PREFIX="$srcdir/cheerp-compiler/build"
-	make -C webgles CHEERP_PREFIX="$srcdir/cheerp-compiler/build"
+	make -C webgles CHEERP_PREFIX="$srcdir/cheerp-compiler/build" CXXFLAGS="-target cheerp -I$srcdir/cheerp-compiler/build_include -stdlib++-isystem $srcdir/cheerp-compiler/build_runtimes_js/include/c++/v1 -idirafter $srcdir/cheerp-musl/build_genericjs/dist/include"
 	make -C stdlibs genericjs CHEERP_PREFIX="$srcdir/cheerp-compiler/build"
 	make -C stdlibs asmjs CHEERP_PREFIX="$srcdir/cheerp-compiler/build"
 	pushd system
