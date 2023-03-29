@@ -1,6 +1,6 @@
 # Maintainer: Yuri Iozzelli <y.iozzelli@gmail.com>
 pkgname=cheerp
-pkgver=28.68f72a8
+pkgver=29.44f25e257374
 pkgrel=1
 epoch=
 pkgdesc="A C++ compiler for the Web"
@@ -42,6 +42,8 @@ pkgver() {
 build() {
 	pushd $srcdir/cheerp-compiler
 
+	rm -rf $(find build/include/ -maxdepth 1 -mindepth 1 -not -name llvm)
+
 	if [ $NO_CONFIGURE == "0" ]
 	then
 		cmake -S llvm -B build -C llvm/CheerpCmakeConf.cmake \
@@ -78,17 +80,16 @@ build() {
 	
 	mkdir -p build_genericjs
 	pushd build_genericjs
-	mkdir -p dist
 	if [ $NO_CONFIGURE == "0" ]
 	then
-		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS="-isystem $PWD/../../cheerp-compiler/clang/lib/Headers" CFLAGS="-Wno-int-conversion" ../configure --target=cheerp --disable-shared --prefix=/ --with-malloc=dlmalloc
+		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp --sysroot=$srcdir/cheerp-compiler/build" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CFLAGS="-Wno-int-conversion" ../configure --target=cheerp --disable-shared --prefix=/ --with-malloc=dlmalloc
 	fi
 	if [ $CLEAN_LIBS == "1" ]
 	then
 		make clean
 	fi
 	make
-	make DESTDIR="$PWD/dist" install-headers
+	make DESTDIR="$srcdir/cheerp-compiler/build" install-headers
 	mkdir -p $srcdir/cheerp-compiler/build/lib/genericjs
 	cp -v lib/libc.bc "$srcdir/cheerp-compiler/build/lib/genericjs/libc.bc"
 	cp -v lib/crt1.bc $srcdir/cheerp-compiler/build/lib/genericjs/crt1.bc
@@ -96,17 +97,15 @@ build() {
 
 	mkdir -p build_asmjs
 	pushd build_asmjs
-	mkdir -p dist
 	if [ $NO_CONFIGURE == "0" ]
 	then
-		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp-wasm" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CPPFLAGS="-isystem $PWD/../../cheerp-compiler/clang/lib/Headers" CFLAGS="-Wno-int-conversion" ../configure --target=cheerp-wasm --disable-shared --prefix=/ --with-malloc=dlmalloc
+		RANLIB="$srcdir/cheerp-compiler/build/bin/llvm-ar s" AR="$srcdir/cheerp-compiler/build/bin/llvm-ar"  CC="$srcdir/cheerp-compiler/build/bin/clang -target cheerp-wasm  --sysroot=$srcdir/cheerp-compiler/build" LD="$srcdir/cheerp-compiler/build/bin/llvm-link" CFLAGS="-Wno-int-conversion" ../configure --target=cheerp-wasm --disable-shared --prefix=/ --with-malloc=dlmalloc
 	fi
 	if [ $CLEAN_LIBS == "1" ]
 	then
 		make clean
 	fi
 	make
-	make DESTDIR="$PWD/dist" install-headers
 	mkdir -p $srcdir/cheerp-compiler/build/lib/asmjs
 	cp -v lib/libc.bc "$srcdir/cheerp-compiler/build/lib/asmjs/libc.bc"
 	cp -v lib/crt1.bc $srcdir/cheerp-compiler/build/lib/asmjs/crt1.bc
@@ -121,8 +120,7 @@ build() {
 	ln -sf $srcdir/cheerp-utils/build/CheerpWasmToolchain.cmake build_cmake/
 	ln -sf $srcdir/cheerp-utils/build/CheerpCommon.cmake build_cmake/
 	ln -sf "$srcdir/cheerp-utils/tools/Cheerp.cmake" build_cmake/Platform
-	mkdir -p build_include/
-	ln -sf "$srcdir/cheerp-utils/include/client" build_include/cheerp
+	ln -sf "$srcdir/cheerp-utils/include/client" $srcdir/cheerp-compiler/build/include/cheerp
 
 	if [ $NO_CONFIGURE == "0" ]
 	then
@@ -133,7 +131,7 @@ build() {
 			-DCMAKE_TOOLCHAIN_FILE="$srcdir/cheerp-compiler/build_cmake/CheerpToolchain.cmake" \
 			-DCHEERP_PREFIX="$srcdir/cheerp-compiler/build/" \
 			-DCMAKE_MODULE_PATH="$srcdir/cheerp-compiler/build_cmake" \
-			-DCMAKE_CXX_FLAGS="-I$srcdir/cheerp-compiler/build_include -idirafter $srcdir/cheerp-musl/build_genericjs/dist/include -fcolor-diagnostics" \
+			-DCMAKE_CXX_FLAGS="--sysroot=$srcdir/cheerp-compiler/build -fcolor-diagnostics" \
 			-C runtimes/CheerpCmakeConf.cmake
 	fi
 	if [ $CLEAN_LIBS == "1" ]
@@ -153,7 +151,7 @@ build() {
 			-DCMAKE_TOOLCHAIN_FILE="$srcdir/cheerp-compiler/build_cmake/CheerpWasmToolchain.cmake" \
 			-DCHEERP_PREFIX="$srcdir/cheerp-compiler/build/" \
 			-DCMAKE_MODULE_PATH="$srcdir/cheerp-compiler/build_cmake" \
-			-DCMAKE_CXX_FLAGS="-I$srcdir/cheerp-compiler/build_include -idirafter $srcdir/cheerp-musl/build_asmjs/dist/include -fcolor-diagnostics" \
+			-DCMAKE_CXX_FLAGS="--sysroot=$srcdir/cheerp-compiler/build -fcolor-diagnostics" \
 			-C runtimes/CheerpCmakeConf.cmake
 	fi
 	if [ $CLEAN_LIBS == "1" ]
@@ -165,9 +163,11 @@ build() {
 	cp -v build_runtimes_wasm/lib/libc++abi.bc "$srcdir/cheerp-compiler/build/lib/asmjs/"
 	popd
 
+	ln -sf "$srcdir/cheerp-compiler/build_runtimes_js/include/c++" "$srcdir/cheerp-compiler/build/include/c++"
+
 	pushd $srcdir/cheerp-libs
 	make -C wasm CHEERP_PREFIX="$srcdir/cheerp-compiler/build"
-	make -C webgles CHEERP_PREFIX="$srcdir/cheerp-compiler/build" CXXFLAGS="-target cheerp -I$srcdir/cheerp-compiler/build_include -stdlib++-isystem $srcdir/cheerp-compiler/build_runtimes_js/include/c++/v1 -idirafter $srcdir/cheerp-musl/build_genericjs/dist/include"
+	make -C webgles CHEERP_PREFIX="$srcdir/cheerp-compiler/build" CXXFLAGS="-target cheerp --sysroot=$srcdir/cheerp-compiler/build"
 	make -C stdlibs genericjs CHEERP_PREFIX="$srcdir/cheerp-compiler/build"
 	make -C stdlibs asmjs CHEERP_PREFIX="$srcdir/cheerp-compiler/build"
 	pushd system
@@ -179,8 +179,8 @@ build() {
 		-DCMAKE_LINKER="$srcdir/cheerp-compiler/build/bin/llvm-link" \
 		-DCMAKE_SYSTEM_NAME="Cheerp" \
 		-DCMAKE_MODULE_PATH="$srcdir/cheerp-compiler/build_cmake" \
-		-DCMAKE_C_FLAGS="-target cheerp" \
-		-DCMAKE_CXX_FLAGS="-target cheerp -I$srcdir/cheerp-compiler/build_include -stdlib++-isystem $srcdir/cheerp-compiler/build_runtimes_js/include/c++/v1 -idirafter $srcdir/cheerp-musl/build_genericjs/dist/include" \
+		-DCMAKE_C_FLAGS="-target cheerp --sysroot=$srcdir/cheerp-compiler/build" \
+		-DCMAKE_CXX_FLAGS="-target cheerp --sysroot=$srcdir/cheerp-compiler/build" \
 		-DCMAKE_INSTALL_PREFIX="/opt/cheerp" \
 		. 
 	ninja -C build_genericjs
@@ -192,8 +192,8 @@ build() {
 		-DCMAKE_LINKER="$srcdir/cheerp-compiler/build/bin/llvm-link" \
 		-DCMAKE_SYSTEM_NAME="Cheerp" \
 		-DCMAKE_MODULE_PATH="$srcdir/cheerp-compiler/build_cmake" \
-		-DCMAKE_C_FLAGS="-target cheerp-wasm" \
-		-DCMAKE_CXX_FLAGS="-target cheerp-wasm -I$srcdir/cheerp-compiler/build_include -stdlib++-isystem $srcdir/cheerp-compiler/build_runtimes_js/include/c++/v1 -idirafter $srcdir/cheerp-musl/build_genericjs/dist/include" \
+		-DCMAKE_C_FLAGS="-target cheerp-wasm --sysroot=$srcdir/cheerp-compiler/build" \
+		-DCMAKE_CXX_FLAGS="-target cheerp-wasm --sysroot=$srcdir/cheerp-compiler/build" \
 		-DCMAKE_INSTALL_PREFIX="/opt/cheerp" \
 		. 
 	ninja -C build_asmjs
